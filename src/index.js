@@ -53,14 +53,15 @@ function Square (props) {
             history: [{
                 squares: Array(9).fill(null)
             }],
-            xIsNext: true
+            xIsNext: true,
+            stepNumber: 0
         }
     }
 
     handleClick(i) {
-        const history = this.state.history;
+        //Copy history array up to the stepNumber in the state, inclusive.
+        const history = this.state.history.slice(0, this.state.stepNumber + 1);
         const current = history[history.length - 1];
-        const winner = calculateWinner(current.squares);
         const squares = current.squares.slice();
 
         if (squares[i] || calculateWinner(squares)) {
@@ -73,14 +74,33 @@ function Square (props) {
             history: history.concat([{
                 squares: squares
             }]),
-            xIsNext: !this.state.xIsNext
+            xIsNext: !this.state.xIsNext,
+            stepNumber: history.length
         });
+    }
+
+    jumpTo(step) {
+        this.setState({
+            stepNumber: step,
+            xIsNext: step % 2 === 0
+        })
     }
 
     render() {
         const history = this.state.history;
-        const current = history[history.length - 1];
+        const current = history[this.state.stepNumber];
         const winner = calculateWinner(current.squares);
+
+        //Calculate and render moves. Step is a step played in the game, move is the number of which turn was played.
+        const moves = history.map((step, move) => {
+            //For all moves except 0, return go to move #. Otherwise go to start of game(move 0).
+            const desc = move ? `Go to move # ${move}` : `Go to game start`;
+            return (
+                <li key={move}>
+                    <button class='jump' onClick={() => this.jumpTo(move)}>{desc}</button>
+                </li>
+            );
+        });
 
         //Calculate status
         let status;
@@ -93,6 +113,7 @@ function Square (props) {
 
         return (
         <div className="game">
+        <h1>React-Tac-Toe</h1>
             <div className="game-board">
             <Board
                 squares={current.squares}
@@ -101,7 +122,7 @@ function Square (props) {
             </div>
             <div className="game-info">
             <div>{status}</div>
-            <ol>{/* TODO */}</ol>
+            <ol class='moves'>{moves}</ol>
             </div>
         </div>
         );
