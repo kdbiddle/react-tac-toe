@@ -1,1 +1,1 @@
-# A simple time travelling tic-tac-toe game built on React
+#### A simple time traveling tic-tac-toe game built on React
